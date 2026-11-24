@@ -9,3 +9,9 @@ wheels/
 # Virtual environments
 .venv
 .env
+
+# Local interactive bot state
+bms_bot_data.json
+.bms_bot_data.json.*.tmp
+bms_bot.log*
+logs/bms_bot.log*

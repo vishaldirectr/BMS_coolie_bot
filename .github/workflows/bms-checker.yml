@@ -1,17 +1,17 @@
 name: BMS Ticket Checker
 
 on:
-  schedule:
-    # Every 30 minutes
-    - cron: '*/30 * * * *'
-  workflow_dispatch:  # Manual trigger button
+  workflow_dispatch:
 
 jobs:
   check-tickets:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     permissions:
       contents: write
+    concurrency:
+      group: bms-ticket-checker
+      cancel-in-progress: false
 
     steps:
       - name: Checkout
@@ -27,14 +27,10 @@ jobs:
 
       - name: Run checker
         env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          RESEND_TO_EMAIL: ${{ secrets.RESEND_TO_EMAIL }}
-          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
-          BMS_URL: ${{ vars.BMS_URL }}
-          BMS_DATES: ${{ vars.BMS_DATES }}
-          BMS_THEATRE: ${{ vars.BMS_THEATRE }}
-          BMS_TIME: ${{ vars.BMS_TIME }}
-        run: uv run main.py
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BMS_CITY: ${{ vars.BMS_CITY || 'hyderabad' }}
+        run: uv run main.py --once
 
       - name: Commit updated state
         run: |
